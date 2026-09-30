@@ -11,6 +11,7 @@ const EH = (() => {
     "UnderAttack","Bounty","FactionKillBond","RedeemVoucher","MissionCompleted","MarketSell","MarketBuy",
     "ShipyardBuy","ShipyardSell","ModuleBuy","ModuleBuyAndStore","ModuleSell","ModuleSellRemote","Repair","RepairAll","RefuelAll","RefuelPartial","BuyAmmo","BuyDrones","PayFines","PayBounties",
     "StoredShips","EngineerProgress","EngineerCraft","Materials","MaterialTrade",
+    "MaterialDiscarded","Synthesis","TechnologyBroker","EngineerContribution","ScientificResearch",
     "CarrierStats","CarrierFinance","CarrierBankTransfer","CarrierDepositFuel","CarrierLocation","CarrierBuy",
     "Cargo","CargoTransfer","CrewHire","CrewFire","CrewAssign","NpcCrewPaidWage","NpcCrewRank","CrewMemberJoins","JoinACrew",
     "Powerplay","PowerplayJoin","PowerplayLeave","PowerplayDefect","PowerplayRank","PowerplayMerits","PowerplaySalary",
@@ -62,7 +63,7 @@ const EH = (() => {
       loadoutValue:new Map(), storedShips:null, soldShips:new Set(),
       bounties:{n:0, cr:0, byTarget:new Map(), byFaction:new Map()}, bonds:{n:0, cr:0}, underAttack:0, killers:[],
       engineers:new Map(), crafts:0, craftsByBp:new Map(), craftsByEng:new Map(), craftLevels:new Map(), experimentals:new Map(),
-      materials:null, matTrades:0, lockerLine:null,
+      materials:null, matTrades:0, lockerLine:null, inv:null, invAt:null, invDeltas:0, fitted:new Map(),
       carrier:null, carrierJumpList:[], carrierFuel:0, carrierLoc:null,
       cargo:null, carrierMoves:new Map(), commodityNames:new Map(), marketTrades:[], companion:{},
       crew:new Map(), multicrew:new Map(),
@@ -72,6 +73,12 @@ const EH = (() => {
   }
 
   const bkey = (addr,id) => addr + ":" + id;
+  // Live material inventory: the Materials snapshot (written at every login) plus every change after it.
+  function adj(A, name, n){
+    if (!A.inv || !name || !n) return;
+    const sym = String(name).toLowerCase(), cap = MAT_CAP[MATS[sym]?.[0]] || 300;
+    A.inv.set(sym, Math.max(0, Math.min(cap, (A.inv.get(sym) || 0) + n))); A.invDeltas++;
+  }
   const inc = (m,k,n=1) => m.set(k,(m.get(k)||0)+n);
   const dist3 = (a,b) => Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
 
@@ -104,6 +111,9 @@ const EH = (() => {
         const s = ship(A,e.ShipID); s.type = e.Ship?.toLowerCase(); if (e.ShipName) s.name = e.ShipName; if (e.ShipIdent) s.ident = e.ShipIdent;
         if (e.MaxJumpRange > s.maxJump) s.maxJump = e.MaxJumpRange; A.curShip = e.ShipID;
         A.loadoutValue.set(e.ShipID, {hull:e.HullValue || 0, modules:e.ModulesValue || 0, rebuy:e.Rebuy || 0, t, jump:e.MaxJumpRange, cargo:e.CargoCapacity});
+        A.fitted.set(e.ShipID, {id:e.ShipID, t, type:e.Ship?.toLowerCase(), name:e.ShipName, ident:e.ShipIdent, modules:(e.Modules || []).map(m => ({slot:m.Slot, item:(m.Item || "").toLowerCase(),
+          eng:m.Engineering && {bp:m.Engineering.BlueprintName, level:m.Engineering.Level, quality:m.Engineering.Quality, engineer:m.Engineering.Engineer,
+            exp:m.Engineering.ExperimentalEffect && (m.Engineering.ExperimentalEffect_Localised || m.Engineering.ExperimentalEffect)}}))});
         break; }
       case "ShipyardSwap": if (e.ShipType_Localised) A.shipTypes.set(e.ShipType.toLowerCase(), e.ShipType_Localised); ship(A,e.ShipID).type = e.ShipType.toLowerCase(); A.curShip = e.ShipID; break;
       case "ShipyardNew": if (e.ShipType_Localised) A.shipTypes.set(e.ShipType.toLowerCase(), e.ShipType_Localised); ship(A,e.NewShipID).type = e.ShipType.toLowerCase(); A.curShip = e.NewShipID; break;
@@ -214,7 +224,11 @@ const EH = (() => {
       case "ProspectedAsteroid": A.prospected++; break;
       case "AsteroidCracked": A.cracked++; break;
       case "LaunchDrone": inc(A.drones, e.Type); break;
-      case "MaterialCollected": A.matsCollected += e.Count || 1; break;
+      case "MaterialCollected": A.matsCollected += e.Count || 1; adj(A, e.Name, e.Count || 1); break;
+      case "MaterialDiscarded": adj(A, e.Name, -(e.Count || 1)); break;
+      case "Synthesis": case "TechnologyBroker": for (const m of e.Materials || []) adj(A, m.Name, -(m.Count || 0)); break;
+      case "EngineerContribution": if (e.Type === "Materials") adj(A, e.Material, -(e.Quantity || 0)); break;
+      case "ScientificResearch": adj(A, e.Name, -(e.Count || 0)); break;
 
       case "Died":
         A.deaths++;
@@ -228,7 +242,7 @@ const EH = (() => {
         break; }
       case "FactionKillBond": A.bonds.n++; A.bonds.cr += e.Reward || 0; break;
       case "RedeemVoucher": inc(A.income, ({bounty:"Bounty vouchers", CombatBond:"Combat bonds", codex:"Codex vouchers", settlement:"Settlement vouchers", scannable:"Data vouchers", trade:"Trade vouchers"})[e.Type] || "Vouchers: " + e.Type, e.Amount || 0); break;
-      case "MissionCompleted": if (e.Reward) inc(A.income, "Mission rewards", e.Reward); break;
+      case "MissionCompleted": if (e.Reward) inc(A.income, "Mission rewards", e.Reward); for (const m of e.MaterialsReward || []) adj(A, m.Name, m.Count || 0); break;
       case "MarketSell": A.marketTrades.push({m:e.MarketID, k:(e.Type || "").toLowerCase(), n:e.Count, dir:"in"}); if (e.Type_Localised) A.commodityNames.set(e.Type.toLowerCase(), e.Type_Localised); inc(A.income, "Commodity sales", e.TotalSale || 0); A.tradeProfit += (e.TotalSale || 0) - (e.AvgPricePaid || 0) * (e.Count || 0); break;
       case "MarketBuy": A.marketTrades.push({m:e.MarketID, k:(e.Type || "").toLowerCase(), n:e.Count, dir:"out"}); if (e.Type_Localised) A.commodityNames.set(e.Type.toLowerCase(), e.Type_Localised); inc(A.spend, "Commodities bought", e.TotalCost || 0); break;
       case "ShipyardBuy": inc(A.spend, "Ships bought", e.ShipPrice || 0); break;
@@ -246,9 +260,10 @@ const EH = (() => {
       case "EngineerCraft":
         A.crafts++; inc(A.craftsByBp, prettyBp(e.BlueprintName)); if (e.Engineer) inc(A.craftsByEng, e.Engineer); inc(A.craftLevels, e.Level);
         if (e.ApplyExperimentalEffect && e.ExperimentalEffect_Localised) inc(A.experimentals, e.ExperimentalEffect_Localised);
+        for (const m of e.Ingredients || []) adj(A, m.Name, -(m.Count || 0));
         break;
-      case "Materials": A.materials = e; break;
-      case "MaterialTrade": A.matTrades++; break;
+      case "Materials": A.materials = e; A.inv = new Map(["Raw","Manufactured","Encoded"].flatMap(c => (e[c] || []).map(m => [m.Name.toLowerCase(), m.Count]))); A.invAt = t; A.invDeltas = 0; break;
+      case "MaterialTrade": A.matTrades++; adj(A, e.Paid?.Material, -(e.Paid?.Quantity || 0)); adj(A, e.Received?.Material, e.Received?.Quantity || 0); break;
       case "CarrierStats":
         A.carrier = e;
         if (e.Finance) A.carrierSeries.push([Date.parse(t), e.Finance.CarrierBalance]);
@@ -466,7 +481,14 @@ const EH = (() => {
     const mats = {Raw:[], Manufactured:[], Encoded:[]};
     if (A.materials) for (const cat of ["Raw","Manufactured","Encoded"]) for (const m of A.materials[cat] || []){
       const d = MATS[m.Name.toLowerCase()] || [0, cat[0], m.Name_Localised || prettyCode(m.Name)];
-      mats[cat].push({sym:m.Name.toLowerCase(), name:m.Name_Localised || d[2], grade:d[0], count:m.Count, cap:MAT_CAP[d[0]] || 300});
+      const sym = m.Name.toLowerCase();
+      mats[cat].push({sym, name:m.Name_Localised || d[2], grade:d[0], count:A.inv?.get(sym) ?? m.Count, cap:MAT_CAP[d[0]] || 300});
+    }
+    // materials picked up after the snapshot that it did not list yet
+    if (A.inv) for (const [sym, count] of A.inv){
+      const d = MATS[sym]; if (!d || !count) continue;
+      const cat = {R:"Raw", M:"Manufactured", E:"Encoded"}[d[1]];
+      if (!mats[cat].some(m => m.sym === sym)) mats[cat].push({sym, name:d[2], grade:d[0], count, cap:MAT_CAP[d[0]] || 300});
     }
     for (const cat in mats) mats[cat].sort((a, b) => a.grade - b.grade || a.name.localeCompare(b.name));
     let locker = null;
@@ -516,6 +538,8 @@ const EH = (() => {
       crafts:A.crafts, craftsByBp:[...A.craftsByBp.entries()].sort((a, b) => b[1] - a[1]), craftsByEng:[...A.craftsByEng.entries()].sort((a, b) => b[1] - a[1]),
       craftLevels:[...A.craftLevels.entries()].sort((a, b) => a[0] - b[0]), experimentals:[...A.experimentals.entries()].sort((a, b) => b[1] - a[1]),
       mats, matsAt:A.materials?.timestamp, matTrades:A.matTrades, locker,
+      inv:A.inv ? Object.fromEntries(A.inv) : null, invAt:A.invAt, invDeltas:A.invDeltas,
+      fitted:[...A.fitted.values()].filter(f => !A.soldShips.has(f.id) && !/suit|taxi|srv|^\$/i.test(f.type || "")).map(f => ({...f, typeName:shipType(A, f.type), label:shipName(A, f)})),
       cargo, carrierCargo, carrierMarket, crew, pp, social,
       carrier:A.carrier, carrierJumpList:cj, carrierFuel:A.carrierFuel, carrierLoc:A.carrierLoc,
       A, cmdr:A.name, fid:A.fid, first:A.first, last:A.last, files:A.files,

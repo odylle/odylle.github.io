@@ -65,5 +65,34 @@ document.addEventListener("drop", e => { e.preventDefault(); $("loader").classLi
   if (h && h.name){ $("rescan").hidden = false; $("rescan").textContent = `Rescan “${h.name}”`; }
 })();
 
+/* ---------- Views: History / Engineering (hash routed, one parse for both) ---------- */
+const NAV = {
+  history:[["Commander", [["overview","Overview"],["credits","Credits"]]],
+    ["Journey", [["travel","Travel"],["map","Map"],["exploration","Exploration"],["exobiology","Exobiology"],["surface","Surface"],["stations","Stations"]]],
+    ["Fleet", [["fleet","Fleet"],["carrier","Carrier"],["crew","Crew"]]],
+    ["Activity", [["powerplay","Powerplay"],["combat","Combat"],["engineering","Engineering"],["industry","Mining"]]],
+    ["Records", [["lifetime","Lifetime"]]]],
+  engineering:[["Workshop", [["blueprints","Blueprints"],["fitted","Fitted"]]],
+    ["Contacts", [["engineers","Engineers"]]],
+    ["Inventory", [["materials","Materials"]]]]
+};
+const viewFromHash = () => location.hash.startsWith("#/engineering") ? "engineering" : "history";
+let curView = null;
+function setView(name, scroll = true){
+  const changed = curView !== name; curView = name;
+  $("out").hidden = name !== "history"; $("eng").hidden = name !== "engineering";
+  document.querySelectorAll(".viewbar [data-view]").forEach(a => { const on = a.dataset.view === name; a.classList.toggle("on", on); a.setAttribute("aria-selected", on); });
+  $("nav").innerHTML = NAV[name].map(([g, items]) => `<span class="grp">${g}</span>` + items.map(([id, l]) => `<a href="#${id}">${l}</a>`).join("")).join("");
+  document.title = name === "engineering" ? `Engineering · ${APP.name}` : APP.name;
+  navSpy(name === "history" ? $("out") : $("eng"));
+  if (scroll && changed && $("app").getBoundingClientRect().top < 0) $("app").scrollIntoView({block:"start"});
+}
+// Section links scroll without touching the hash, which holds the view.
+$("nav").addEventListener("click", e => {
+  const a = e.target.closest("a[href^='#']"); if (!a) return;
+  e.preventDefault(); document.getElementById(a.getAttribute("href").slice(1))?.scrollIntoView({block:"start"});
+});
+addEventListener("hashchange", () => { if (!$("app").hidden && (!location.hash || location.hash.startsWith("#/"))) setView(viewFromHash()); });
+
 /* ---------- Version footer ---------- */
 $("ver").innerHTML = `${esc(APP.name)} v${esc(APP.version)} · ${esc(APP.released)} · <a href="${APP.repo}/blob/main/CHANGELOG.md" target="_blank" rel="noopener">changelog</a> · <a href="${APP.repo}" target="_blank" rel="noopener">source</a>`;

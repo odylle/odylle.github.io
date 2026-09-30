@@ -29,15 +29,12 @@
   </div>
 
   <div id="app" hidden>
-    <nav class="nav" id="nav" aria-label="Sections">
-      <span class="grp">Commander</span><a href="#overview">Overview</a><a href="#credits">Credits</a>
-      <span class="grp">Journey</span><a href="#travel">Travel</a><a href="#map">Map</a><a href="#exploration">Exploration</a><a href="#exobiology">Exobiology</a><a href="#surface">Surface</a><a href="#stations">Stations</a>
-      <span class="grp">Fleet</span><a href="#fleet">Fleet</a><a href="#carrier">Carrier</a><a href="#crew">Crew</a>
-      <span class="grp">Activity</span><a href="#powerplay">Powerplay</a><a href="#combat">Combat</a>
-      <span class="grp">Engineering</span><a href="#engineering">Engineering</a><a href="#materials">Materials</a><a href="#industry">Mining</a>
-      <span class="grp">Records</span><a href="#lifetime">Lifetime</a>
-    </nav>
-    <div id="out" class="grid" style="gap:28px"></div>
+    <div class="viewbar" role="tablist" aria-label="Views">
+      <a role="tab" href="#/history" data-view="history">History</a><a role="tab" href="#/engineering" data-view="engineering">Engineering</a>
+    </div>
+    <nav class="nav" id="nav" aria-label="Sections"></nav>
+    <div id="out" class="grid view" style="gap:28px"></div>
+    <div id="eng" class="grid view" style="gap:28px" hidden></div>
   </div>
 
   <footer>Journal-derived figures only cover the journal files present in the folder. The Lifetime section comes from the game's own <code>Statistics</code> event, which counts everything since the commander was created. Exobiology catalogue values are Vista Genomics base values; first-logged samples pay five times that.
@@ -48,10 +45,12 @@
 <script src="js/version.js"></script>
 <script src="data/exobiology.js"></script>
 <script src="data/materials.js"></script>
+<script src="data/blueprints.js"></script>
 <script src="js/journal/core.js"></script>
 <script src="js/views/helpers.js"></script>
 <script src="js/views/history.js"></script>
 <script src="js/views/map.js"></script>
+<script src="js/views/blueprints.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

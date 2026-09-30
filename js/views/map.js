@@ -20,6 +20,7 @@ function initMap(v){
 
   function resize(){
     const r = box.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+    if (!r.width || !r.height) return;          // hidden (other view active): wait for the next resize
     const first = !st.W; st.W = r.width; st.H = r.height;
     cv.width = r.width * d; cv.height = r.height * d; ctx.setTransform(d, 0, 0, d, 0, 0);
     first ? fit(routeBounds()) : draw();

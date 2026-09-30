@@ -217,16 +217,25 @@ function show(v){
       ${kpi("Material trades", nf(v.matTrades), S.Material_Trader_Stats ? `${nf(S.Material_Trader_Stats.Materials_Traded)} mats lifetime` : "", "amber")}
     </div>
     <div class="grid g2">
-      ${panel("Engineers", `<div class="tbl"><table><thead><tr><th>Engineer</th><th>Status</th><th class="num">Grade</th></tr></thead><tbody>
-        ${E.map(e => `<tr><td>${esc(e.name)}</td><td class="${e.progress === "Unlocked" ? "hl" : ""}" style="${e.progress === "Unlocked" ? "" : "color:var(--mute)"}">${esc(e.progress || "–")}</td>
-          <td class="num"><span class="pips">${e.rank ? [1,2,3,4,5].map(i => `<i class="${i <= e.rank ? "on" : ""}"></i>`).join("") : ""}</span>${e.rank && e.rank < 5 && e.rp ? `<span class="sub">${e.rp}% to next</span>` : ""}</td></tr>`).join("") || `<tr><td colspan="3" class="empty">No engineer data</td></tr>`}
-      </tbody></table></div>`)}
-      <div class="grid" style="align-content:start">
         ${panel("Most rolled blueprints", hbars(v.craftsByBp.slice(0, 12), "violet"))}
         ${panel("Rolls per engineer", hbars(v.craftsByEng.slice(0, 10), "cyan"))}
         ${panel("Rolls per grade", hbars(v.craftLevels.map(([l, n]) => ["Grade " + l, n]), "pink"))}
         ${v.experimentals.length ? panel("Experimental effects applied", hbars(v.experimentals.slice(0, 10), "amber")) : ""}
-      </div>
+    </div>
+    <p class="note">Blueprints, your engineering plan, fitted modules and materials are in the <a href="#/engineering">Engineering</a> view.</p>`;
+
+  /* ---- Engineers (Engineering view) ---- */
+  const engineers = `<div class="kpis">
+      ${kpi("Unlocked", nf(unlocked.length), `${nf(E.length)} known`, "cyan")}
+      ${kpi("At grade 5", nf(E.filter(e => e.rank === 5).length), "", "green")}
+      ${kpi("In progress", nf(unlocked.filter(e => (e.rank || 0) < 5).length), "unlocked, below grade 5", "amber")}
+      ${kpi("Invited or known", nf(E.filter(e => e.progress === "Invited" || e.progress === "Known").length), "not yet unlocked", "violet")}
+    </div>
+    <div class="eng-table">
+      ${panel("Engineers", `<div class="tbl"><table><thead><tr><th>Engineer</th><th>Status</th><th class="num">Grade</th></tr></thead><tbody>
+        ${E.map(e => `<tr><td>${esc(e.name)}</td><td class="${e.progress === "Unlocked" ? "hl" : ""}" style="${e.progress === "Unlocked" ? "" : "color:var(--mute)"}">${esc(e.progress || "–")}</td>
+          <td class="num"><span class="pips">${e.rank ? [1,2,3,4,5].map(i => `<i class="${i <= e.rank ? "on" : ""}"></i>`).join("") : ""}</span>${e.rank && e.rank < 5 && e.rp ? `<span class="sub">${e.rp}% to next</span>` : ""}</td></tr>`).join("") || `<tr><td colspan="3" class="empty">No engineer data</td></tr>`}
+      </tbody></table></div>`)}
     </div>`;
 
   /* ---- Materials ---- */
@@ -237,7 +246,7 @@ function show(v){
       <div class="mat ${m.count >= m.cap ? "full" : m.count / m.cap < .15 ? "low" : ""} ${cls}" data-sym="${esc(m.sym)}" tabindex="0"><span class="n">${esc(m.name)}</span><span class="gr">G${m.grade || "?"}</span>
       <span class="t"><b style="width:${Math.min(100, m.count / m.cap * 100)}%"></b></span><span class="x">${nf(m.count)}<small>/${m.cap}</small></span></div>`).join("")}</div>` : `<p class="note">None.</p>`);
   };
-  const materials = v.A.materials ? `<p class="note">Snapshot from the last login (${dt(v.matsAt)}). Bars fill towards the grade cap (G1 300 · G2 250 · G3 200 · G4 150 · G5 100); pink = nearly empty, green = full.</p>
+  const materials = v.A.materials ? `<p class="note">Last login snapshot (${dt(v.matsAt)}) plus ${nf(v.invDeltas)} change${v.invDeltas === 1 ? "" : "s"} since: pickups, trades, crafts, synthesis and mission rewards. Bars fill towards the grade cap (G1 300 · G2 250 · G3 200 · G4 150 · G5 100); pink = nearly empty, green = full.</p>
     <div class="grid g3">${matPanel("Raw", "cyan")}${matPanel("Manufactured", "violet")}${matPanel("Encoded", "amber")}</div>
     ${v.locker ? panel(`Ship locker (on-foot) <span style="letter-spacing:0;text-transform:none;font-weight:400">· ${dt(v.locker.t)}</span>`, `<div class="grid g2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))">${v.locker.cats.map(c => `<div><h3>${c.k} · ${nf(c.list.reduce((a, x) => a + x.count, 0))}</h3>${c.list.length ? hbars(c.list.slice(0, 10).map(x => [x.name, x.count]), "green") : `<p class="note">Empty</p>`}</div>`).join("")}</div>`) : ""}`
     : `<p class="note">No Materials event in these journals.</p>`;
@@ -306,8 +315,11 @@ function show(v){
     sect("overview", "Overview", overview) + sect("credits", "Credits", credits) + sect("travel", "Travel", travel) + sect("map", "Galaxy map", map) +
     sect("exploration", "Exploration", exploration) + sect("exobiology", "Exobiology", exo) + sect("surface", "Surface", surface) +
     sect("stations", "Stations", stations) + sect("fleet", "Fleet", fleet) + sect("carrier", "Fleet carrier", carrier) + sect("crew", "Crew &amp; wing", crew) + sect("powerplay", "Powerplay", powerplay) + sect("combat", "Combat", combat) +
-    sect("engineering", "Engineering", engineering) + sect("materials", "Materials", materials) +
+    sect("engineering", "Engineering", engineering) +
     sect("industry", "Mining &amp; misc", industry) + sect("lifetime", "Lifetime", lifetime);
+  $("eng").innerHTML =
+    sect("blueprints", "Blueprints", `<div id="bp"></div>`) + sect("fitted", "Fitted engineering", `<div id="bpFitted"></div>`) +
+    sect("engineers", "Engineers", engineers) + sect("materials", "Materials", materials);
   $("app").hidden = false;
 
   document.querySelectorAll(".seg button").forEach(b => b.onclick = () => {
@@ -316,7 +328,8 @@ function show(v){
   });
   initMap(v);
   initMatTips();
-  navSpy();
+  BP.init(v);
+  setView(viewFromHash(), false);
 }
 function carrierMarketPanel(v){
   const M = v.carrierMarket;
@@ -335,10 +348,13 @@ function weekChart(weeks){
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Powerplay merits per cycle"><defs><filter id="glow3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>${g}${bars}</svg>`;
 }
 function initMatTips(){
-  let tip = $("mtip"); if (!tip){ tip = document.createElement("div"); tip.id = "mtip"; tip.className = "mtip"; document.body.appendChild(tip); }
+  if ($("mtip")) return;                      // delegated once: covers the Materials panels and the Blueprints view
+  const tip = document.createElement("div"); tip.id = "mtip"; tip.className = "mtip"; document.body.appendChild(tip);
   const show = el => {
     const sym = el.dataset.sym, d = EH.MATS[sym] || [], src = EH.sourcesFor(sym);
-    tip.innerHTML = `<b>${esc(el.querySelector(".n").textContent)}</b><span class="g">${d[1] === "R" ? "Raw" : d[1] === "M" ? "Manufactured" : "Encoded"} · grade ${d[0] || "?"} · ${esc(el.querySelector(".x").textContent)}</span>
+    const name = el.querySelector(".n")?.textContent || d[2] || sym;
+    const count = el.querySelector(".x")?.textContent || (V?.inv ? `${nf(V.inv[sym] || 0)} in stock` : "");
+    tip.innerHTML = `<b>${esc(name)}</b><span class="g">${d[1] === "R" ? "Raw" : d[1] === "M" ? "Manufactured" : "Encoded"} · grade ${d[0] || "?"}${count ? " · " + esc(count) : ""}</span>
       ${src.length ? `<ul>${src.map(s => `<li>${esc(s)}</li>`).join("")}</ul>` : `<p>No known farming spot.</p>`}`;
     tip.style.display = "block";
     const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
@@ -348,9 +364,10 @@ function initMatTips(){
     tip.style.left = Math.max(8, x) + "px"; tip.style.top = Math.max(8, yy) + "px";
   };
   const hide = () => { tip.style.display = "none"; };
-  document.querySelectorAll(".mat[data-sym]").forEach(el => {
-    el.onmouseenter = () => show(el); el.onmouseleave = hide; el.onfocus = () => show(el); el.onblur = hide;
-  });
+  const on = e => { const el = e.target.closest?.("[data-sym]"); if (el) show(el); };
+  const off = e => { const el = e.target.closest?.("[data-sym]"); if (el && !el.contains(e.relatedTarget)) hide(); };
+  document.addEventListener("mouseover", on); document.addEventListener("mouseout", off);
+  document.addEventListener("focusin", on); document.addEventListener("focusout", off);
   addEventListener("scroll", hide, {passive:true});
 }
 function prettyShip(c){ return c ? c.replace(/_/g, " ").replace(/\b\w/g, x => x.toUpperCase()) : ""; }
@@ -374,8 +391,10 @@ function lineChart(series){
 }
 function prettyType(t){ return ({FleetCarrier:"Fleet carrier",CraterOutpost:"Surface outpost",CraterPort:"Surface port",OnFootSettlement:"Settlement",AsteroidBase:"Asteroid base",MegaShip:"Megaship",SurfaceStation:"Surface station",Bernal:"Ocellus"})[t] || t; }
 
-function navSpy(){
+let spy = null;
+function navSpy(container){
+  spy?.disconnect();
   const links = [...document.querySelectorAll("#nav a")];
-  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), {rootMargin:"-40% 0px -55% 0px"});
-  document.querySelectorAll("#out section").forEach(s => io.observe(s));
+  spy = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), {rootMargin:"-40% 0px -55% 0px"});
+  container.querySelectorAll(":scope > section").forEach(s => spy.observe(s));
 }
