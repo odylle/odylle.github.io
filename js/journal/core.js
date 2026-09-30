@@ -1,4 +1,4 @@
-/* ===== Elite History core: journal parsing + aggregation (no DOM) ===== */
+/* ===== CMDR History core: journal parsing + aggregation (no DOM) ===== */
 const EH = (() => {
   const EVENTS = new Set([
     "Commander","LoadGame","FSDJump","CarrierJump","CarrierJumpRequest","StartJump","Location","FuelScoop",

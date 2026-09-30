@@ -1,4 +1,4 @@
-/* ===== Elite History: state, loading and boot (load last) ===== */
+/* ===== CMDR History: state, loading and boot (load last) ===== */
 let views = [], V = null, mapState = null;
 
 /* ---------- Loading ---------- */
@@ -64,3 +64,6 @@ document.addEventListener("drop", e => { e.preventDefault(); $("loader").classLi
   const h = await IDB.get("dir");
   if (h && h.name){ $("rescan").hidden = false; $("rescan").textContent = `Rescan “${h.name}”`; }
 })();
+
+/* ---------- Version footer ---------- */
+$("ver").innerHTML = `${esc(APP.name)} v${esc(APP.version)} · ${esc(APP.released)} · <a href="${APP.repo}/blob/main/CHANGELOG.md" target="_blank" rel="noopener">changelog</a> · <a href="${APP.repo}" target="_blank" rel="noopener">source</a>`;

@@ -1,4 +1,4 @@
-/* ===== Elite History UI ===== */
+/* ===== CMDR History UI ===== */
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const nf = (n, d = 0) => n == null || isNaN(n) ? "–" : Number(n).toLocaleString("en-GB", {minimumFractionDigits:d, maximumFractionDigits:d});

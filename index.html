@@ -3,15 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Elite History</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap">
+<title>CMDR History</title>
+<link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>Elite <span>History</span></h1>
+    <h1>CMDR <span>History</span></h1>
     <div class="cmdr" id="cmdr">No journals loaded</div>
   </header>
 
@@ -30,17 +29,23 @@
   </div>
 
   <div id="app" hidden>
-    <nav class="nav" id="nav">
-      <a href="#overview">Overview</a><a href="#credits">Credits</a><a href="#travel">Travel</a><a href="#map">Map</a><a href="#exploration">Exploration</a>
-      <a href="#exobiology">Exobiology</a><a href="#surface">Surface</a><a href="#stations">Stations</a><a href="#fleet">Fleet</a><a href="#carrier">Carrier</a><a href="#crew">Crew</a><a href="#powerplay">Powerplay</a><a href="#combat">Combat</a>
-      <a href="#engineering">Engineering</a><a href="#materials">Materials</a><a href="#industry">Mining</a><a href="#lifetime">Lifetime</a>
+    <nav class="nav" id="nav" aria-label="Sections">
+      <span class="grp">Commander</span><a href="#overview">Overview</a><a href="#credits">Credits</a>
+      <span class="grp">Journey</span><a href="#travel">Travel</a><a href="#map">Map</a><a href="#exploration">Exploration</a><a href="#exobiology">Exobiology</a><a href="#surface">Surface</a><a href="#stations">Stations</a>
+      <span class="grp">Fleet</span><a href="#fleet">Fleet</a><a href="#carrier">Carrier</a><a href="#crew">Crew</a>
+      <span class="grp">Activity</span><a href="#powerplay">Powerplay</a><a href="#combat">Combat</a>
+      <span class="grp">Engineering</span><a href="#engineering">Engineering</a><a href="#materials">Materials</a><a href="#industry">Mining</a>
+      <span class="grp">Records</span><a href="#lifetime">Lifetime</a>
     </nav>
     <div id="out" class="grid" style="gap:28px"></div>
   </div>
 
-  <footer>Journal-derived figures only cover the journal files present in the folder. The Lifetime section comes from the game's own <code>Statistics</code> event, which counts everything since the commander was created. Exobiology catalogue values are Vista Genomics base values; first-logged samples pay five times that.</footer>
+  <footer>Journal-derived figures only cover the journal files present in the folder. The Lifetime section comes from the game's own <code>Statistics</code> event, which counts everything since the commander was created. Exobiology catalogue values are Vista Genomics base values; first-logged samples pay five times that.
+    <div class="ver" id="ver"></div>
+  </footer>
 </div>
 
+<script src="js/version.js"></script>
 <script src="data/exobiology.js"></script>
 <script src="data/materials.js"></script>
 <script src="js/journal/core.js"></script>

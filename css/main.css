@@ -21,7 +21,7 @@ body{margin:0;color:var(--text);font:15px/1.45 var(--cond);min-height:100vh;
     linear-gradient(90deg,rgba(42,34,80,.22) 1px,transparent 1px) 0 0/24px 100%,
     var(--bg);background-attachment:fixed}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px);mix-blend-mode:multiply;z-index:50}
-.wrap{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:24px 64px;display:grid;gap:20px;position:relative;z-index:1}
+.wrap{max-width:1480px;margin:0 auto;padding-inline:16px;padding-block:24px 64px;display:grid;gap:20px;position:relative;z-index:1}
 header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 20px;padding-bottom:10px;border-bottom:1px solid var(--cyan);box-shadow:0 1px 0 rgba(34,228,255,.25),0 6px 16px -8px rgba(34,228,255,.6)}
 h1{font:600 30px/1.1 var(--cond);letter-spacing:.14em;text-transform:uppercase;margin:0;color:var(--cyan);text-shadow:var(--g-cyan)}
 h1 span{color:var(--pink);text-shadow:var(--g-pink)}
@@ -55,6 +55,7 @@ select{font:14px var(--mono);color:var(--text);background:var(--bg);border:1px s
 /* Nav */
 .nav{position:sticky;top:0;z-index:20;display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:8px 0;background:linear-gradient(var(--bg) 70%,transparent)}
 .nav a{flex:none;font:600 12px var(--cond);letter-spacing:.18em;text-transform:uppercase;color:var(--mute);text-decoration:none;padding:6px 10px;border:1px solid transparent;border-radius:4px}
+.nav .grp{display:none}
 .nav a:hover,.nav a.on{color:var(--violet);border-color:rgba(180,107,255,.5);text-shadow:var(--g-violet);box-shadow:inset 0 0 10px rgba(180,107,255,.15)}
 
 /* Sections & panels */
@@ -151,6 +152,8 @@ td.hl{color:var(--cyan);text-shadow:var(--g-cyan)}
 
 .empty{color:var(--mute);padding:40px 16px;text-align:center}
 footer{color:var(--mute);font-size:13px;max-width:80ch}
+footer .ver{margin-top:10px;font:12px var(--mono);letter-spacing:.04em}
+footer .ver a{color:var(--violet);text-decoration:none} footer .ver a:hover{text-shadow:var(--g-violet)}
 /* Materials, pips, carrier capacity */
 .mats{display:grid;gap:5px}
 .mat{--c:var(--cyan);--rgb:34,228,255;display:grid;grid-template-columns:minmax(0,1fr) 2.2em 24% 5.4em;gap:8px;align-items:center;font-size:13.5px}
@@ -180,5 +183,13 @@ tfoot td{border-bottom:0;border-top:1px solid var(--line)}
 /* colour utilities last so they override component defaults */
 .pink{--c:var(--pink);--rgb:255,46,136} .amber{--c:var(--amber);--rgb:255,194,61} .green{--c:var(--green);--rgb:57,255,160} .violet{--c:var(--violet);--rgb:180,107,255} .cyan{--c:var(--cyan);--rgb:34,228,255}
 
+/* Wide screens: section nav becomes a sticky sidebar */
+@media (min-width:1180px){
+  #app:not([hidden]){display:grid;grid-template-columns:168px minmax(0,1fr);gap:28px;align-items:start}
+  .nav{top:16px;flex-direction:column;gap:2px;overflow:hidden auto;max-height:calc(100vh - 32px);padding:4px 0;background:none;border-right:1px solid var(--line);padding-right:14px}
+  .nav .grp{display:block;font:600 10px var(--cond);letter-spacing:.22em;text-transform:uppercase;color:var(--pink);opacity:.8;margin:14px 0 4px 10px}
+  .nav .grp:first-child{margin-top:0}
+  .nav a{padding:5px 10px}
+}
 @media (max-width:600px){ h1{font-size:24px} .kpi .v{font-size:22px} .hb{grid-template-columns:minmax(90px,40%) 1fr auto} }
 @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} .live{animation:none} .bar i{transition:none} }
