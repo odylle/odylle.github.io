@@ -3,7 +3,7 @@
 **Your Elite Dangerous career, straight from your own journal files.**
 Open the page, point it at your journal folder, and get a full breakdown of where you've been, what you've found, what you've earned and what you've flown. No install, no account, no uploads.
 
-**▶ [odylle.github.io](https://odylle.github.io)**
+**▶ [cmdr.odylle.org](https://cmdr.odylle.org)**
 
 ---
 
@@ -17,7 +17,7 @@ Open the page, point it at your journal folder, and get a full breakdown of wher
 | **Activity** | Powerplay merits per week, combat bounties, bonds and ranks, engineering statistics (rolls per blueprint, engineer and grade, experimentals), mining |
 | **Records** | Lifetime statistics as recorded by the game itself |
 
-A separate **Engineering** view (tab at the top, or [`#/engineering`](https://odylle.github.io/#/engineering)) is the workshop:
+A separate **Engineering** view (tab at the top, or [`#/engineering`](https://cmdr.odylle.org/#/engineering)) is the workshop:
 
 | | |
 |---|---|
@@ -33,7 +33,7 @@ Everything happens in your browser tab. Journal files are read locally and parse
 
 ## Usage
 
-1. Open **[odylle.github.io](https://odylle.github.io)**.
+1. Open **[cmdr.odylle.org](https://cmdr.odylle.org)**.
 2. Click **Open journal folder** and select:
    ```
    %USERPROFILE%\Saved Games\Frontier Developments\Elite Dangerous

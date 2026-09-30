@@ -6,6 +6,9 @@ The version shown in the page footer comes from `js/version.js`; bump both toget
 
 ## [Unreleased]
 
+### Changed
+- Served from [cmdr.odylle.org](https://cmdr.odylle.org); `odylle.github.io` redirects there.
+
 ## [0.2.0] - 2026-09-30
 
 ### Added
