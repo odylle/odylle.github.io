@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Elite History</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Elite <span>History</span></h1>
+    <div class="cmdr" id="cmdr">No journals loaded</div>
+  </header>
+
+  <div class="loader" id="loader">
+    <p class="intro">Reads your Elite Dangerous <b>Player Journal</b> files straight from disk. Nothing is uploaded; everything is parsed in this browser tab. Pick the journal folder (Cargo.json, ShipLocker.json and Market.json next to the journals are read too):</p>
+    <div class="path">%USERPROFILE%\Saved Games\Frontier Developments\Elite Dangerous</div>
+    <div class="actions">
+      <button class="btn" id="pick" type="button">Open journal folder</button>
+      <button class="btn cyan" id="rescan" type="button" hidden>Rescan</button>
+      <label class="btn violet small" for="files" id="filesLbl">Or select files…</label>
+      <input id="files" type="file" multiple accept=".log" webkitdirectory hidden>
+      <span id="cmdrSel"></span>
+      <span class="status" id="status"></span>
+    </div>
+    <div class="bar" aria-hidden="true"><i id="progress"></i></div>
+  </div>
+
+  <div id="app" hidden>
+    <nav class="nav" id="nav">
+      <a href="#overview">Overview</a><a href="#credits">Credits</a><a href="#travel">Travel</a><a href="#map">Map</a><a href="#exploration">Exploration</a>
+      <a href="#exobiology">Exobiology</a><a href="#surface">Surface</a><a href="#stations">Stations</a><a href="#fleet">Fleet</a><a href="#carrier">Carrier</a><a href="#crew">Crew</a><a href="#powerplay">Powerplay</a><a href="#combat">Combat</a>
+      <a href="#engineering">Engineering</a><a href="#materials">Materials</a><a href="#industry">Mining</a><a href="#lifetime">Lifetime</a>
+    </nav>
+    <div id="out" class="grid" style="gap:28px"></div>
+  </div>
+
+  <footer>Journal-derived figures only cover the journal files present in the folder. The Lifetime section comes from the game's own <code>Statistics</code> event, which counts everything since the commander was created. Exobiology catalogue values are Vista Genomics base values; first-logged samples pay five times that.</footer>
+</div>
+
+<script src="data/exobiology.js"></script>
+<script src="data/materials.js"></script>
+<script src="js/journal/core.js"></script>
+<script src="js/views/helpers.js"></script>
+<script src="js/views/history.js"></script>
+<script src="js/views/map.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
