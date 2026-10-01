@@ -1,0 +1,32 @@
+name: Feature request
+description: A stat, view or improvement you'd like to see
+title: "[Idea] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please [search existing requests](https://github.com/odylle/odylle.github.io/issues?q=is%3Aissue+label%3Aenhancement) first. If it's already there, add a 👍 to the first post; open requests are prioritised partly by reactions.
+        Everything in CMDR History comes from your local journal files, so ideas needing data the journals don't contain aren't possible.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What do you want to know or do?
+      placeholder: How many credits I make per exobiology trip.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      placeholder: Group exobiology sales between carrier jumps and show a table of trips.
+  - type: input
+    id: events
+    attributes:
+      label: Journal events involved (if you know)
+      placeholder: SellOrganicData, CarrierJump
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [History view, Engineering view, Loading / general, Something new]

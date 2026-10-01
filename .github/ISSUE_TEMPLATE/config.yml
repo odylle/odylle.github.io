@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: How to report issues (wiki)
+    url: https://github.com/odylle/odylle.github.io/wiki/Reporting-Issues
+    about: What to include, and how to share journal lines safely.
+  - name: Security or privacy problem
+    url: https://github.com/odylle/odylle.github.io/security/advisories/new
+    about: Please report these privately, not as a public issue.

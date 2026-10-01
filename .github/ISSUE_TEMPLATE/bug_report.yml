@@ -1,0 +1,64 @@
+name: Bug report
+description: Something is wrong, missing or doesn't match the game
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please [search existing issues](https://github.com/odylle/odylle.github.io/issues?q=is%3Aissue) first.
+        **Don't attach whole journal files**: they contain your commander name, account ID and locations. A single line is enough; see the [wiki](https://github.com/odylle/odylle.github.io/wiki/Reporting-Issues) for how to find and redact it.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Shown at the bottom of the page.
+      placeholder: CMDR History v0.2.0
+    validations:
+      required: true
+  - type: dropdown
+    id: view
+    attributes:
+      label: Where
+      options:
+        - History view
+        - Engineering view – Blueprints / plan
+        - Engineering view – Fitted engineering
+        - Engineering view – Engineers / Materials
+        - Loading journals
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and operating system
+      placeholder: Chrome 141 on Windows 11
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Load journals
+        2. Open Engineering → Fitted
+        3. …
+  - type: textarea
+    id: console
+    attributes:
+      label: Browser console errors
+      description: Press F12, open the Console tab, reload and load your journals again. Paste any red lines.
+      render: text
+  - type: textarea
+    id: journal
+    attributes:
+      label: Relevant journal line(s)
+      description: Optional but very helpful for wrong numbers. Replace your FID / commander name if you like.
+      render: json
